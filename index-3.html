@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pak Forces Preparation — App Download</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#071b13;color:#f5f8f6}main{min-height:100vh;background:linear-gradient(145deg,#062016,#0d3a25 55%,#06150f);padding:24px 16px}.wrap{max-width:760px;margin:auto}.brand{text-align:center;padding:18px 0 8px}.logo{width:92px;height:92px;margin:auto;border-radius:24px;background:#fff;display:grid;place-items:center;box-shadow:0 14px 40px #0008;overflow:hidden}.logo span{font-size:48px}.brand h1{margin:18px 0 6px;font-size:30px}.brand p{margin:0;color:#c6d8cf}.card{margin-top:24px;background:#ffffff12;border:1px solid #ffffff1c;border-radius:24px;padding:24px;backdrop-filter:blur(12px);box-shadow:0 18px 50px #0005}.status{text-align:center;color:#cde6d8;margin-bottom:18px}.btn{display:flex;justify-content:center;align-items:center;width:100%;padding:16px 18px;border:0;border-radius:15px;background:#d4ad3a;color:#10140e;font-size:18px;font-weight:800;text-decoration:none;cursor:pointer}.btn:disabled{opacity:.45;cursor:not-allowed}.small{font-size:13px;color:#a9c0b5;text-align:center;line-height:1.6}.admin{margin-top:18px}.admin summary{cursor:pointer;color:#d9e9e1;font-weight:700}.row{display:flex;gap:10px;margin-top:14px}.row input{flex:1;min-width:0;padding:13px;border-radius:12px;border:1px solid #ffffff25;background:#071b13;color:#fff}.row button{padding:13px 16px;border:0;border-radius:12px;background:#fff;color:#102219;font-weight:800;cursor:pointer}.file{margin-top:14px}.file input{width:100%;padding:14px;border:1px dashed #ffffff44;border-radius:12px;background:#071b13;color:#dcebe4}.note{margin-top:14px;padding:12px;border-radius:12px;background:#0003;color:#bdd0c7;font-size:13px;line-height:1.55}.ok{color:#9be2b9}.err{color:#ffaaa5}.foot{text-align:center;color:#91a89e;font-size:12px;padding:22px}.hidden{display:none!important}@media(max-width:520px){.brand h1{font-size:25px}.card{padding:18px}}
+</style>
+</head>
+<body>
+<main><div class="wrap">
+<section class="brand">
+<div class="logo"><span>🇵🇰</span></div>
+<h1>Pak Forces Preparation</h1>
+<p>Official App Download</p>
+</section>
+<section class="card">
+<div id="status" class="status">Checking app download...</div>
+<a id="download" class="btn hidden" href="#" download>⬇️ Download App</a>
+<div id="wait" class="small">If the download button is not available yet, please contact the admin.</div>
+<details class="admin">
+<summary>Admin — Upload / Replace APK</summary>
+<div class="file"><input id="apk" type="file" accept=".apk,application/vnd.android.package-archive"></div>
+<div class="row"><input id="name" value="PakForcesPreparation.apk" placeholder="APK file name"><button id="upload">Upload</button></div>
+<div id="msg" class="note">Select the APK you want students to download, then press Upload.</div>
+</details>
+</section>
+<div class="foot">Created By Wasif Rasheed • Learn • Practice • Test • Improve 🇵🇰</div>
+</div></main>
+<script>
+const SUPABASE_URL='https://ugcmnmycoimdthxxoeky.supabase.co';
+const SUPABASE_KEY='sb_publishable_Z0pFsH50CXZPi-w_HD6Aog_-jeUOCQO';
+const BUCKET='app-files';
+const OBJECT='website/PakForcesPreparation.apk';
+const statusEl=document.getElementById('status'), downloadEl=document.getElementById('download'), waitEl=document.getElementById('wait'), msg=document.getElementById('msg');
+function publicUrl(){return SUPABASE_URL+'/storage/v1/object/public/'+BUCKET+'/'+OBJECT}
+function setDownload(url){downloadEl.href=url;downloadEl.classList.remove('hidden');waitEl.classList.add('hidden');statusEl.innerHTML='<span class="ok">Your app is ready to download.</span>'}
+async function load(){
+ try{
+  const u=publicUrl()+'?v='+Date.now();
+  const r=await fetch(u,{method:'HEAD'});
+  if(r.ok)setDownload(u); else statusEl.textContent='App is not uploaded yet.';
+ }catch(e){statusEl.textContent='App is not uploaded yet.'}
+}
+document.getElementById('upload').onclick=async()=>{
+ const f=document.getElementById('apk').files[0]; if(!f){msg.innerHTML='<span class="err">Please select an APK first.</span>';return}
+ if(!f.name.toLowerCase().endsWith('.apk')){msg.innerHTML='<span class="err">Please select an APK file.</span>';return}
+ const btn=document.getElementById('upload');btn.disabled=true;msg.textContent='Uploading APK… please wait.';
+ try{
+  const r=await fetch(SUPABASE_URL+'/storage/v1/object/'+BUCKET+'/'+OBJECT,{method:'POST',headers:{apikey:SUPABASE_KEY,authorization:'Bearer '+SUPABASE_KEY,'x-upsert':'true','content-type':'application/vnd.android.package-archive'},body:f});
+  if(!r.ok) throw new Error(await r.text());
+  msg.innerHTML='<span class="ok">APK uploaded successfully. Students can now use this page to download it.</span>';
+  setDownload(publicUrl()+'?v='+Date.now());
+ }catch(e){msg.innerHTML='<span class="err">Upload failed. Check that the Supabase Storage bucket allows uploads.</span>';console.error(e)}
+ finally{btn.disabled=false}
+};
+load();
+</script>
+</body></html>
